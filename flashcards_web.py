@@ -38,9 +38,7 @@ def filtrera_frågor(df, filter_status):
         return list(df[df["Status"].isna() | (df["Status"] == "")].iterrows())
     return list(df.iterrows())
 
-
-
-# Nytt: Hantera filbyte
+# Nytt: Hantera filuppladdning direkt
 with st.sidebar:
     uploaded_file = st.file_uploader("Välj en Excel- eller CSV-fil", type=["xlsx", "csv"])
 
@@ -50,36 +48,22 @@ if 'df' not in st.session_state:
     st.session_state['df'] = None
 
 if uploaded_file and uploaded_file.name != st.session_state['senaste_filnamn']:
-    if st.session_state['df'] is not None:
-        st.warning("Du håller på att ladda upp en ny fil. Vill du spara den gamla innan?")
-        if st.button("💾 Spara innan filbyte"):
-            spara_df = st.session_state['df'].drop(columns=["OriginalIndex"], errors="ignore")
-            if st.session_state['senaste_filnamn'].endswith(".csv"):
-                csv_buffer = io.StringIO()
-                spara_df.to_csv(csv_buffer, index=False, sep=";")
-                st.download_button(label="Ladda ner sparad CSV", data=csv_buffer.getvalue(), file_name="flashcards_med_status.csv", mime="text/csv")
-                st.success("Gamla filen redo för nedladdning som 'flashcards_med_status.csv'")
-            else:
-                excel_buffer = io.BytesIO()
-                spara_df.to_excel(excel_buffer, index=False)
-                st.download_button(label="Ladda ner sparad Excel", data=excel_buffer.getvalue(), file_name="flashcards_med_status.xlsx")
-                st.success("Gamla filen redo för nedladdning som 'flashcards_med_status.xlsx'")
-        if st.button("Bekräfta och byt fil"):
-            df = ladda_fil(uploaded_file)
-            if df is not None:
-                st.session_state['df'] = df
-                st.session_state['index'] = 0
-                st.session_state['visar_svar'] = False
-                st.session_state['filter_status'] = "Alla"
-                st.session_state['senaste_filnamn'] = uploaded_file.name
-            st.rerun()
+    df = ladda_fil(uploaded_file)
+    if df is not None:
+        st.session_state['df'] = df
+        st.session_state['index'] = 0
+        st.session_state['visar_svar'] = False
+        st.session_state['filter_status'] = "Alla"
+        st.session_state['senaste_filnamn'] = uploaded_file.name
+        st.success("Filen laddades in! ✅")
+        st.rerun()
 
 if 'df' in st.session_state and st.session_state['df'] is not None:
     df = st.session_state['df']
     with st.sidebar:
         filter_alternativ = ["Alla", "Kan", "Kan inte", "Obesvarade"]
         st.session_state['filter_status'] = st.selectbox("Filter", filter_alternativ, index=filter_alternativ.index(st.session_state.get('filter_status', "Alla")))
-        
+
         filtrerade_frågor = filtrera_frågor(df, st.session_state['filter_status'])
 
         with st.expander("\U0001F4CB Visa översikt över frågor"):
@@ -132,14 +116,12 @@ if 'df' in st.session_state and st.session_state['df'] is not None:
         cols_status = st.columns(2)
         with cols_status[0]:
             is_active = status == 1
-            knappstil = "background-color: green; color: white;" if is_active else ""
             if st.button("👍 Kan", key="kan"):
                 ny_status = None if is_active else 1
                 spara_status(df, org_index, ny_status)
                 st.rerun()
         with cols_status[1]:
             is_active = status == 0
-            knappstil = "background-color: red; color: white;" if is_active else ""
             if st.button("👎 Kan inte", key="kan_inte"):
                 ny_status = None if is_active else 0
                 spara_status(df, org_index, ny_status)
@@ -154,12 +136,12 @@ if 'df' in st.session_state and st.session_state['df'] is not None:
             csv_buffer = io.StringIO()
             spara_df.to_csv(csv_buffer, index=False, sep=";")
             if st.download_button(label="💾 Spara", data=csv_buffer.getvalue(), file_name="flashcards_med_status.csv", mime="text/csv"):
-              st.success("Fil sparad som 'flashcards_med_status.csv'")
+                st.success("Fil sparad som 'flashcards_med_status.csv'")
         else:
             excel_buffer = io.BytesIO()
             spara_df.to_excel(excel_buffer, index=False)
             if st.download_button(label="💾 Spara", data=excel_buffer.getvalue(), file_name="flashcards_med_status.xlsx"):
-              st.success("Fil sparad som 'flashcards_med_status.xlsx'")
+                st.success("Fil sparad som 'flashcards_med_status.xlsx'")
 
     else:
         st.info("Inga frågor att visa med det valda filtret.")
