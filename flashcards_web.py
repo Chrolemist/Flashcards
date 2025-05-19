@@ -40,11 +40,6 @@ def filtrera_frågor(df, filter_status):
 
 # Nytt: Hantera filuppladdning direkt
 with st.sidebar:
-    st.write("Ladda upp en Excel- eller CSV-fil med dina flashcards 📄")
-
-    # Visa videon om ingen fil är uppladdad ännu
-    if 'df' not in st.session_state or st.session_state['df'] is None:
-        st.video("media/instruktion.mp4")  # 🟢 ändra till din videofil
     uploaded_file = st.file_uploader("Välj en Excel- eller CSV-fil", type=["xlsx", "csv"])
 
 if 'senaste_filnamn' not in st.session_state:
@@ -152,3 +147,12 @@ if 'df' in st.session_state and st.session_state['df'] is not None:
         st.info("Inga frågor att visa med det valda filtret.")
 else:
     st.info("Välj en Excel- eller CSV-fil för att starta.")
+    
+    video_path = "media/instruktion.mp4" 
+    video_html = f"""
+    <video width="100%" autoplay muted loop>
+      <source src="{video_path}" type="video/mp4">
+      Din webbläsare stödjer inte video-taggen.
+    </video>
+    """
+    st.markdown(video_html, unsafe_allow_html=True)
