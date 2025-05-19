@@ -97,32 +97,36 @@ if 'df' in st.session_state and st.session_state['df'] is not None:
         if st.session_state['visar_svar']:
             st.info(f"Svar: {svar_text}")
 
-        cols_nav = st.columns(3)
+        cols_nav = st.columns([1, 10, 1])
         with cols_nav[0]:
-            if st.button("⬅️ Föregående"):
+            if st.button("⬅️", help="Föregående"):
                 st.session_state['index'] = max(0, st.session_state['index'] - 1)
                 st.session_state['visar_svar'] = False
                 st.rerun()
-        with cols_nav[1]:
-            if st.button("👀 Visa svar"):
-                st.session_state['visar_svar'] = not st.session_state['visar_svar']
-                st.rerun()
         with cols_nav[2]:
-            if st.button("➡️ Nästa"):
+            if st.button("➡️", help="Nästa"):
                 st.session_state['index'] = min(len(filtrerade_frågor) - 1, st.session_state['index'] + 1)
                 st.session_state['visar_svar'] = False
                 st.rerun()
 
-        cols_status = st.columns(2)
-        with cols_status[0]:
+        # 👀 Visa svar centrerad ovanför status-knapparna
+        cols_center = st.columns([4, 2, 4])
+        with cols_center[1]:
+            if st.button("👀 Visa svar"):
+                st.session_state['visar_svar'] = not st.session_state['visar_svar']
+                st.rerun()
+
+        # 👍 👎 statusknappar centrerade
+        cols_status = st.columns([4, 1, 1, 4])
+        with cols_status[1]:
             is_active = status == 1
-            if st.button("👍 Kan", key="kan"):
+            if st.button("👍", key="kan"):
                 ny_status = None if is_active else 1
                 spara_status(df, org_index, ny_status)
                 st.rerun()
-        with cols_status[1]:
+        with cols_status[2]:
             is_active = status == 0
-            if st.button("👎 Kan inte", key="kan_inte"):
+            if st.button("👎", key="kan_inte"):
                 ny_status = None if is_active else 0
                 spara_status(df, org_index, ny_status)
                 st.rerun()
