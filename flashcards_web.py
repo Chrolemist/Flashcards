@@ -148,11 +148,6 @@ if 'df' in st.session_state and st.session_state['df'] is not None:
 else:
     st.info("Välj en Excel- eller CSV-fil för att starta.")
     
-    video_path = "media/instruktion.mp4" 
-    video_html = f"""
-    <video width="100%" autoplay muted loop>
-      <source src="{video_path}" type="video/mp4">
-      Din webbläsare stödjer inte video-taggen.
-    </video>
-    """
-    st.markdown(video_html, unsafe_allow_html=True)
+    # Visa videon om ingen fil är uppladdad ännu
+    if 'df' not in st.session_state or st.session_state['df'] is None:
+        st.video("media/instruktion.mp4")  # 🟢 ändra till din videofil
