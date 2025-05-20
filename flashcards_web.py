@@ -154,4 +154,4 @@ else:
     
     # Visa videon om ingen fil är uppladdad ännu
     if 'df' not in st.session_state or st.session_state['df'] is None:
-        st.video("media/instruktion.mp4")  # 🟢 ändra till din videofil
+        st.video("media/instruktion_noSound.mp4")  
